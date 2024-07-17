@@ -51,36 +51,50 @@ public_users.get('/',function (req, res) {
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
-    let isbn = req.params.isbn;
-    res.status(200).send(books[isbn]);
+    new Promise((resolve, reject) => {
+        resolve(books[req.params.isbn]);
+    })
+    .then((isbnBook)=>{
+        res.status(200).send(isbnBook);
+    })
+    .catch((error) =>{
+        res.status(500).send({message: "Book with given ISBN was not present."});
+    })
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
     let out = [];
     let author = req.params.author;
-    for (const[key, values] of Object.entries(books)){
-        const book = Object.entries(values);
-        if (book[0][1] == author){
-            out.push(books[key]);
+
+    getBooks = new Promise((resolve, reject) => {
+        for (const[key, values] of Object.entries(books)){
+            const book = Object.entries(values);
+            if (book[0][1] == author){
+                out.push(books[key]);
+            }
         }
-    }
+    })
     if (out.length == 0){
         return res.status(300).json({message: "Author not found."});
     }
     res.status(200).json(out);
+
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
     let out = [];
     let title = req.params.title;
-    for (const[key, values] of Object.entries(books)){
-        const book = Object.entries(values);
-        if (book[1][1] == title){
-            out.push(books[key]);
+    getBook = new Promise((resolve, reject) =>{
+        for (const[key, values] of Object.entries(books)){
+            const book = Object.entries(values);
+            if (book[1][1] == title){
+                out.push(books[key]);
+            }
         }
-    }
+    })
+
     if (out.length == 0){
         return res.status(300).json({message: "Book not found."});
     }
